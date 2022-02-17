@@ -87,4 +87,3 @@ while loop:
 #To do
 #Have menu scale base on number of folders
 #Get backup working with program selection
-#test
