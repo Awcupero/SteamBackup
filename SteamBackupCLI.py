@@ -1,14 +1,29 @@
+###########################################################
+# Author: Anthony Cupero
+# Version: 1.1
+# Language: python 3.9
+# A commandline program use to back up steam game to remote directory 
+############################################################
+
 import os
 import math
 from pathlib import Path
 import shutil
-
+from tqdm import tqdm
 
 
 source = 'E:\\Games\\Steam\\steamapps\\common\\'  # The file or directory to backup
-destination = 'C:\\Users\\Tcupe\\Desktop'  # The location to store the backups in
+backupdestination = 'C:\\Users\\Tcupe\\Desktop\\'  # The location to store the backups in
 archive = "zip"
 loop = True
+Gamelist = []
+FSize = []
+GName = []
+Pad = []
+Title = []
+files = os.listdir(source)
+Centerline = 10
+
 
 
 def convert_size(size_bytes):
@@ -43,47 +58,62 @@ def get_directory_size(source):
     return total
    
 def make_archive(source, destination):
-    archive = "zip"
-    loop = True
-
     try:
         base = os.path.basename(source)
         shutil.make_archive(base, archive, source)
         shutil.move('%s.%s'%(base,archive), destination)
         print("Backup Complete")
                 
+                
     except KeyboardInterrupt:
         print("Backup Canceled")
-    except OSError:
-        print("Backup Error")
+    except OSError as BackupError:
+        print(BackupError)    
 
-def make_list():
+def make_list(): 
+
+    for Length in files: 
+        Pad.append(len(Length)) 
+    y = int(max(Pad)+5)
+
+    for i in range(0, len(GName)):
+        print((f"{GName[i] :<{y}}{'|' :^{Centerline}}{FSize[i] :>10}")) 
+        Title.append(len((f"{GName[i] :<{y}}{'|' :^{Centerline}}{FSize[i] :>10}")))
+
+def title():
     try:
-        files = os.listdir(source)
-        print("Steam Game Backuper CLI 1.0".center(40,"-"))
 
         for i, dest in enumerate(files, 1):
-            print("[%d]. %s" % (i, dest),convert_size(get_directory_size(f"{source}{dest}")))
+            Gamelist.append(dest)
+            FSize.append(convert_size(get_directory_size(f"{source}{dest}")))
+            GName.append("[%d] %s" % (i, dest))
+
     except OSError:
         print("Incorrect Directory")
-    except KeyboardInterrupt:
-        print("Exited by user")
 
 
-while loop:
-    make_list()
-    print("Type exit to end program")
-    for dest in enumerate(os.listdir(source)):
+    for Length in files: 
+        Pad.append(len(Length)) 
+    y = int(max(Pad)+5)
+
+    for i in range(0, len(GName)):
+        Title.append(len((f"{GName[i] :<{y}}{'|' :^{Centerline}}{FSize[i] :>10}")))
+
+    print("Steam Game Backuper CLI 1.0".center(Title[0],"-"))
+
+while True:
+    try:
         
-        x = input("Please chose  game to archive :")
-
-        if x == "1":     
-            print("Menu 1 has been selected")
-        #os.system('cls||clear')
-
-            if x == "exit":
-                break
-
-#To do
-#Have menu scale base on number of folders
-#Get backup working with program selection
+        title()
+        make_list()
+        for dest in enumerate(os.listdir(source)):
+            x = int(input("Please chose game to archive :"))
+            path = source + Gamelist[x-1] 
+            make_archive(path , backupdestination)
+    
+    
+    except KeyboardInterrupt:
+        os.system('cls||clear')
+        print("Exited by user")
+    break
+    
